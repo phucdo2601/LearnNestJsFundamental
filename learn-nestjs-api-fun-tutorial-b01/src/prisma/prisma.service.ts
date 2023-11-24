@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 
-@Injectable({
-    
-})
+@Injectable({})
 export class PrismaService extends PrismaClient {
-    constructor() {
+    constructor(config: ConfigService) {
         super({
             datasources: {
                 db: {
-                    url: "postgresql://postgres:123@localhost:5434/learn_fun_nest_dev_db?schema=public"
+                    url: config.get('DATABASE_URL')
                 },
             }
         });
+
+        console.log(config.get('DATABASE_URL'));
+        
     }
 }
