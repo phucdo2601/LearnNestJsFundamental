@@ -54,7 +54,36 @@ export class AuthService {
 
     }
 
-    signin() {
+    async signin(dto: AuthDto) {
+        //find the user by email
+        const user = await this.prisma.user.findUnique({
+            where: {
+                email: dto.email,
+
+            }
+        })
+
+        // if user does not exist throw exception
+        if (!user) {
+            throw new ForbiddenException(
+                "Credentials incorrect",
+            );
+
+
+        }
+
+        // compare password
+        const pwMatched = await argon.verify(user.hash, dto.password);
+
+        // if password incorrect  throw exception
+        if (!pwMatched) {
+            throw new ForbiddenException(
+                'Credentials incorrect',
+            )
+        }
+
+        // send back the user
+
         return {
             msg: "I am sign in func controller",
             status: 200

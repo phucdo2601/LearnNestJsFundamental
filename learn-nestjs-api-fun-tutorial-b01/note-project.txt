@@ -1,0 +1,2 @@
+cau lenh prisma dành cho việc Apply pending migrations to the database in production/staging:
+    - npx prisma migrate dev --name init
