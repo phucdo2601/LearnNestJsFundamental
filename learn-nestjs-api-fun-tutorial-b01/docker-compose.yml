@@ -7,7 +7,17 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
-      POSTGRES_DB: learn_fun_nest_dev_db
+      POSTGRES_DB: learn_fun_nest_db
+    networks:
+      - phucdo2601
+  test-db:
+    image: postgres:15
+    ports:
+      - 5435:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: learn_fun_nest_db
     networks:
       - phucdo2601
 networks:
