@@ -32,3 +32,24 @@ bootstrap();
 COPY
  
 While the application is running, open your browser and navigate to http://localhost:3000/api. You should see the Swagger UI.
+
+
+Implement CRUD operations for Article model
+In this section, you will implement the Create, Read, Update, and Delete (CRUD) operations for the Article model and any accompanying business logic.
+
+Generate REST resources
+Before you can implement the REST API, you will need to generate the REST resources for the Article model. This can be done quickly using the Nest CLI. Run the following command in your terminal:
+
+npx nest generate resource
+COPY
+ 
+You will be given a few CLI prompts. Answer the questions accordingly:
+
+What name would you like to use for this resource (plural, e.g., "users")? articles
+What transport layer do you use? REST API
+Would you like to generate CRUD entry points? Yes
+You should now find a new src/articles directory with all the boilerplate for your REST endpoints. Inside the src/articles/articles.controller.ts file, you will see the definition of different routes (also called route handlers). The business logic for handling each request is encapsulated in the src/articles/articles.service.ts file. Currently, this file contains dummy implementations.
+
+If you open the Swagger API page again, you should see something like this:
+
+The SwaggerModule searches for all @Body(), @Query(), and @Param() decorators on the route handlers to generate this API page.
