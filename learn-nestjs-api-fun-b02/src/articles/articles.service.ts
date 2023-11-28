@@ -15,6 +15,14 @@ export class ArticlesService {
     return await this.prisma.article.findMany();
   }
 
+  async findArticleDrafts() {
+    return await this.prisma.article.findMany({
+      where: {
+        published: false,
+      },
+    });
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} article`;
   }
