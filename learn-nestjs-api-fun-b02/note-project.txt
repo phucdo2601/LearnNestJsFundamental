@@ -53,3 +53,12 @@ You should now find a new src/articles directory with all the boilerplate for yo
 If you open the Swagger API page again, you should see something like this:
 
 The SwaggerModule searches for all @Body(), @Query(), and @Param() decorators on the route handlers to generate this API page.
+
+------------------------------------------------------------------------------------------------------------------------------------
+*PUT HTTP Request: PUT is a method of modifying resources where the client sends data that updates the entire resource. PUT is similar to POST in that it can create resources, but it does so when there is a defined URL wherein PUT replaces the entire resource if it exists or creates new if it does not exist.
+
+For example, When you want to update the Candidate name and email, you have to send all the parameters of the Candidate including those not to be updated in the request body, otherwise, it will simply replace the entire resource with the name and email.
+
+*PATCH HTTP Request: Unlike PUT Request, PATCH does partial update e.g. Fields that need to be updated by the client, only that field is updated without modifying the other field.
+
+So in the previous example, we have to send only the name and email field in the request body.
