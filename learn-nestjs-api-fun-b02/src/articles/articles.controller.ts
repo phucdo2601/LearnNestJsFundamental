@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -28,12 +28,24 @@ export class ArticlesController {
   }
 
   //get article by id
+  // @Get(':id')
+  // @ApiOkResponse({
+  //   type: ArticleEntity, 
+  // })
+  // async findArticleById(@Param('id', ParseIntPipe) articleId: number) {
+  //   return await this.articlesService.findOne(articleId);
+  // }
+
   @Get(':id')
   @ApiOkResponse({
     type: ArticleEntity, 
   })
-  async findArticleById(@Param('id', ParseIntPipe) articleId: number) {
-    return await this.articlesService.findOne(articleId);
+  async findArticleById(@Param('id') articleId: string) {
+    const article = await this.articlesService.findOne(+articleId);
+    if (!article) {
+      throw new NotFoundException(`Article with${articleId} does not exist`);
+    }
+    return article;
   }
 
   //create new article
