@@ -62,3 +62,90 @@ For example, When you want to update the Candidate name and email, you have to s
 *PATCH HTTP Request: Unlike PUT Request, PATCH does partial update e.g. Fields that need to be updated by the client, only that field is updated without modifying the other field.
 
 So in the previous example, we have to send only the name and email field in the request body.
+
+-------------------------------------------------------------------------------------------------------------------------------------
+Set up ValidationPipe globally
+To perform input validation, you will be using the built-in NestJS ValidationPipe. The ValidationPipe provides a convenient approach to enforce validation rules for all incoming client payloads, where the validation rules are declared with decorators from the class-validator package.
+
+To use this feature, you will need to add two packages to your project:
+
+npm install class-validator class-transformer
+
+The class-validator package provides decorators for validating input data, and the class-transformer package provides decorators to transform input data to the desired form. Both packages are well integrated with NestJS pipes.
+
+Now import the ValidationPipe in your main.ts file and use the app.useGlobalPipes method to make it available globally in your application:
+
+Strip unnecessary properties from client requests
+The CreateArticleDTO defines the properties that need to be sent to the POST /articles endpoint to create a new article. UpdateArticleDTO does the same, but for the PATCH /articles/{id} endpoint.
+
+Currently, for both of these endpoints it is possible to send additional properties that are not defined in the DTO. This can lead to unforeseen bugs or security issues. For example, you could manually pass invalid createdAt and updatedAt values to the POST /articles endpoint. Since TypeScript type information is not available at run-time, your application will not be able to identify that these fields are not available in the DTO.
+
+To give an example, try sending the following request to the POST /articles endpoint:
+
+{
+  "title": "example-title",
+  "description": "example-description",
+  "body": "example-body",
+  "published": true,
+  "createdAt": "2010-06-08T18:20:29.309Z",
+  "updatedAt": "2021-06-02T18:20:29.310Z"
+}
+
+In this way, you can inject invalid values. Here you have created an article that has an updatedAt value that precedes createdAt, which does not make sense.
+
+To prevent this, you will need to filter any unnecessary fields/properties from client requests. Fortunately, NestJS provides an out-of-the-box for this as well. All you need to do is pass the whitelist: true option when initializing the ValidationPipe inside your application.
+
+app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+Transform dynamic URL paths with ParseIntPipe
+Inside your API, you are currently accepting the id parameter for the GET /articles/{id} , PATCH /articles/{id} and DELETE /articles/{id} endpoints as a part of the path. NestJS parses the id parameter as a string from the URL path. Then, the string is cast to a number inside your application code before being passed to the ArticlesService. For example, take a look at the DELETE /articles/{id} route handler:
+// src/articles/articles.controller.ts
+
+@Delete(':id')
+@ApiOkResponse({ type: ArticleEntity })
+remove(@Param('id') id: string) {   // id is parsed as a string
+  return this.articlesService.remove(+id); // id is converted to number using the expression '+id'
+}
+
+Since id is defined as a string type, the Swagger API also documents this argument as a string in the generated API documentation. This is unintuitive and incorrect.
+
+Instead of doing this transformation manually inside the route handler, you can use a NestJS pipe to convert id to a number automatically. Add the built-in ParseIntPipe to the controller route handlers for these three endpoints:
+
+// src/articles/articles.controller.ts
+
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  NotFoundException,
+  ParseIntPipe,
+} from '@nestjs/common';
+
+export class ArticlesController {
+  // ...
+
+  @Get(':id')
+  @ApiOkResponse({ type: ArticleEntity })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.articlesService.findOne(id);
+  }
+
+  @Patch(':id')
+  @ApiCreatedResponse({ type: ArticleEntity })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateArticleDto: UpdateArticleDto,
+  ) {
+    return this.articlesService.update(id, updateArticleDto);
+  }
+
+  @Delete(':id')
+  @ApiOkResponse({ type: ArticleEntity })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.articlesService.remove(id);
+  }
+}

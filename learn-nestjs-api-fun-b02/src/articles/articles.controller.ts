@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -32,8 +32,8 @@ export class ArticlesController {
   @ApiOkResponse({
     type: ArticleEntity, 
   })
-  async findArticleById(@Param('id') articleId: string) {
-    return await this.articlesService.findOne(+articleId);
+  async findArticleById(@Param('id', ParseIntPipe) articleId: number) {
+    return await this.articlesService.findOne(articleId);
   }
 
   //create new article
@@ -49,13 +49,13 @@ export class ArticlesController {
   @ApiOkResponse({
     type: ArticleEntity,
   })
-  async updateArticle(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return await this.articlesService.updateArticle(+id, updateArticleDto);
+  async updateArticle(@Param('id', ParseIntPipe) id: number, @Body() updateArticleDto: UpdateArticleDto) {
+    return await this.articlesService.updateArticle(id, updateArticleDto);
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: ArticleEntity })
-  async deleteArticle(@Param('id') id: string) {
-    return await this.articlesService.deleteArticle(+id);
+  async deleteArticle(@Param('id', ParseIntPipe) id: number) {
+    return await this.articlesService.deleteArticle(id);
   }
 }
