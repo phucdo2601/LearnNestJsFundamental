@@ -15,8 +15,9 @@ export class ArticlesController {
   @ApiOkResponse({
     type: ArticleEntity, isArray: true,
   })
-  findAll() {
-    return this.articlesService.findAll();
+  async findAll() {
+    const articles = await this.articlesService.findAll();
+    return articles.map((article) => new ArticleEntity(article));
   }
 
   @Get('drafts')
@@ -24,7 +25,8 @@ export class ArticlesController {
     type: ArticleEntity, isArray: true,
   })
   async findArticleDraft() {
-    return await this.articlesService.findArticleDrafts();
+    const drafts = await this.articlesService.findArticleDrafts();
+    return drafts.map((article) => new ArticleEntity(article));
   }
 
   //get article by id
@@ -41,7 +43,7 @@ export class ArticlesController {
     type: ArticleEntity, 
   })
   async findArticleById(@Param('id') articleId: string) {
-    const article = await this.articlesService.findOne(+articleId);
+    const article = new ArticleEntity(await this.articlesService.findOne(+articleId));
     if (!article) {
       throw new NotFoundException(`Article with${articleId} does not exist`);
     }
@@ -54,7 +56,7 @@ export class ArticlesController {
     type: ArticleEntity,
   })
   async createNewArticle(@Body() createActicle: CreateArticleDto) {
-    return await this.articlesService.createNewArticle(createActicle);
+    return new ArticleEntity(new ArticleEntity(await this.articlesService.createNewArticle(createActicle)));
   }
 
   @Patch(':id')
@@ -62,12 +64,12 @@ export class ArticlesController {
     type: ArticleEntity,
   })
   async updateArticle(@Param('id', ParseIntPipe) id: number, @Body() updateArticleDto: UpdateArticleDto) {
-    return await this.articlesService.updateArticle(id, updateArticleDto);
+    return new ArticleEntity(await this.articlesService.updateArticle(id, updateArticleDto));
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: ArticleEntity })
   async deleteArticle(@Param('id', ParseIntPipe) id: number) {
-    return await this.articlesService.deleteArticle(id);
+    return new ArticleEntity(await this.articlesService.deleteArticle(id));
   }
 }

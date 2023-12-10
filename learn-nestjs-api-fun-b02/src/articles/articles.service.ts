@@ -7,8 +7,16 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * 
+   * Returning the author along with an article
+   */
   async findAll() {
-    return await this.prisma.article.findMany();
+    return await this.prisma.article.findMany({
+      include: {
+        author: true
+      }
+    });
   }
 
   async findArticleDrafts() {
@@ -23,6 +31,9 @@ export class ArticlesService {
     return await this.prisma.article.findUnique({
       where: {
         id: id,
+      },
+      include: {
+        author: true,
       },
     });
   }
