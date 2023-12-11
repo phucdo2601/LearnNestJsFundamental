@@ -25,6 +25,10 @@ async function bootstrap() {
     .setTitle('Learn-Fun-Nestjs-Api-Swagger')
     .setDescription('Swagger Description')
     .setVersion('0.1')
+    /**
+     * add the .addBearerAuth() method call to the SwaggerModule setup in main.ts
+     */
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
