@@ -124,3 +124,80 @@
 
 After that, run command line: npm run start:dev for testing datasource connection.
 -----------------------------------------------------------------------------------------------------
+List Entities in this project:
+    Users
+    Products
+    orders
+    shipping info
+    category
+-----------------------------------------------------------------------------------------------------
+Some command-line for creating crud action in NestJs:
+CRUD generator
+Throughout the life span of a project, when we build new features, we often need to add new resources to our application. These resources typically require multiple, repetitive operations that we have to repeat each time we define a new resource.
+
+Introduction#
+Let's imagine a real-world scenario, where we need to expose CRUD endpoints for 2 entities, let's say User and Product entities. Following the best practices, for each entity we would have to perform several operations, as follows:
+
+Generate a module (nest g mo) to keep code organized and establish clear boundaries (grouping related components)
+Generate a controller (nest g co) to define CRUD routes (or queries/mutations for GraphQL applications)
+Generate a service (nest g s) to implement & isolate business logic
+Generate an entity class/interface to represent the resource data shape
+Generate Data Transfer Objects (or inputs for GraphQL applications) to define how the data will be sent over the network
+That's a lot of steps!
+
+To help speed up this repetitive process, Nest CLI provides a generator (schematic) that automatically generates all the boilerplate code to help us avoid doing all of this, and make the developer experience much simpler.
+
+NOTE
+The schematic supports generating HTTP controllers, Microservice controllers, GraphQL resolvers (both code first and schema first), and WebSocket Gateways.
+Generating a new resource#
+To create a new resource, simply run the following command in the root directory of your project:
+
+
+$ nest g resource
+
+-----------------------------------------------------------------------------------------------------
+
+02. Basic create and use entity in NestJs:
+    01. Create entity-class: UserEntity in user.entity.ts
+
+    import { Roles } from "src/utility/common/user-roles.enum";
+    import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+    @Entity("users")
+    export class UserEntity {
+        @PrimaryGeneratedColumn()
+        id: number;
+
+        @Column()
+        name: string;
+
+        @Column()
+        email: string;
+
+        @Column()
+        password: string;
+
+        @Column({
+            type: 'enum',
+            enum: Roles,
+            array: true,
+            default: [
+                Roles.USER
+            ]
+        })
+        roles: Roles[]
+    }
+
+    02. Import in this *.moudule.ts of this resource for using entity on this:
+        ...
+        import { TypeOrmModule } from '@nestjs/typeorm';
+        import { UserEntity } from './entities/user.entity';
+
+        ...
+        imports: [
+            /**
+            * import UserEntity for using this entity on this resource
+            */
+            TypeOrmModule.forFeature([UserEntity])
+        ],
+        ...
