@@ -227,3 +227,7 @@ $ nest g resource
         1. npm run migration:generate -- pathFileMigration (for generating migration file)
             ex: npm run migration:generate -- db/migrations/initial
         2. npm run migration:run (for executing migration and create object in db)
+
+-------------------------------------------------------------------------------------------------
+Using Repository pattern for handling function:
+With that in place, we can inject the UsersRepository into the UsersService using the @InjectRepository() decorator:
