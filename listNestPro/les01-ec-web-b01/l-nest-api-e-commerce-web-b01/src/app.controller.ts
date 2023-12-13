@@ -7,6 +7,11 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return "Hello Phucdn!";
+    return this.appService.getHello();
+  }
+
+  @Get("/testRes")
+  getTestFunc() : string {
+    return "Test Response!";
   }
 }

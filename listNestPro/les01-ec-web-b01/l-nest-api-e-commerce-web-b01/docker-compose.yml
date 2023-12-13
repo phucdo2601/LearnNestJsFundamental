@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  dev-db:
+    image: postgres:15
+    restart: always
+    ports:
+      - 5434:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=learn_nest_api_pro_ec_web_b01
+    volumes:
+      - dev-db:/var/lib/postgresql/data
+
+volumes:
+  dev-db:
