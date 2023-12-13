@@ -231,3 +231,32 @@ $ nest g resource
 -------------------------------------------------------------------------------------------------
 Using Repository pattern for handling function:
 With that in place, we can inject the UsersRepository into the UsersService using the @InjectRepository() decorator:
+
+-------------------------------------------------------------------------------------------------
+05. Validation
+    01. Installation
+        we'll focus on various real world use cases of the ValidationPipe, and show how to use some of its advanced customization features.
+
+        Using the built-in ValidationPipe#
+        To begin using it, we first install the required dependency.
+
+
+        $ npm i --save class-validator class-transformer
+
+    02. Setup on root file of project:
+        // src/main.tsx
+        ....
+        app.useGlobalPipes(new ValidationPipe());
+        ....
+
+    03. Using in class object for validation:
+        ex:
+            import { IsEmail, IsNotEmpty } from 'class-validator';
+
+            export class CreateUserDto {
+            @IsEmail()
+            email: string;
+
+            @IsNotEmpty()
+            password: string;
+            }

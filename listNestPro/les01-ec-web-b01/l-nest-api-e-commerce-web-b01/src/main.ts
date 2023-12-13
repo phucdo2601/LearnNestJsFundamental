@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,6 +10,19 @@ async function bootstrap() {
    * Config default web path on this project
    */
   app.setGlobalPrefix('api/v1');
+
+        message: "Password minimun character should be 5."
+
+  /**
+   * Config validation on this project
+   */
+  app.useGlobalPipes(new ValidationPipe({
+    /**
+     * If set to true, validator will strip validated (returned) object of any properties that do 
+     * not use any validation decorators.
+     */
+    whitelist: true
+  }));
 
   const swaggerConfig = new DocumentBuilder()
       .setTitle("Learn-Ec-NestJs-RestAPI-B01")
