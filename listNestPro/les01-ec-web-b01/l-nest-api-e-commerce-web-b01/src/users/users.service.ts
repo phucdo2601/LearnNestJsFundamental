@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserSignUp } from './dto/user-signup.dto';
+import { UserSignUpDto } from './dto/user-signup.dto';
+import {hash} from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -15,10 +16,21 @@ export class UsersService {
     
   }
 
-  async signup(userSignUp: UserSignUp) : Promise<UserEntity> {
-    const user = this.userRepository.create(userSignUp);
+  async signup(userSignUpDto: UserSignUpDto) : Promise<UserEntity> {
+    const userExists = await this.findUserByEmail(userSignUpDto.email);
 
-    return await this.userRepository.save(user);
+    if (userExists) {
+      throw new BadRequestException(`Username with email ${(await userExists).email} is existed!`);
+    }
+
+    userSignUpDto.password = await hash(userSignUpDto.password, 10);
+
+    let user = this.userRepository.create(userSignUpDto);
+    user = await this.userRepository.save(user)
+    
+    delete user.password;
+
+    return user;
   }
 
   create(createUserDto: CreateUserDto) {
@@ -39,5 +51,11 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async findUserByEmail(email: string) {
+    return await this.userRepository.findOneBy({
+      email: email,
+    });
   }
 }
