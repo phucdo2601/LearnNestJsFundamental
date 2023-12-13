@@ -201,3 +201,29 @@ $ nest g resource
             TypeOrmModule.forFeature([UserEntity])
         ],
         ...
+
+------------------------------------------------------------------------------------------------------------------------
+03. Setup Migration in Nestjs project by TypeOrm:
+    01. Config migration file of data-source.ts
+        ....
+        entities: [
+            'dist/**/*.entity{.ts,.js}',
+        ],
+        migrations: [
+            'dist/db/migrations/*{.ts,.js}'
+        ],
+        ....
+    
+    02. setting synchronize: false beacause of limiting refresh or create entities after running and executing app
+
+    03. In this project, add syntax running command for migration db in package.json:
+    "migration:generate":"npm run typeorm -- migration:generate",
+    "migration:run":"npm run typeorm -- migration:run",
+    "migration-revert":"npm run typeorm -- migration:revert",
+    "db:drop":"npm run typeorm schema:drop"
+
+    Arrange Running:
+        npm run db:drop (for dropping old database) -- optional
+        1. npm run migration:generate -- pathFileMigration (for generating migration file)
+            ex: npm run migration:generate -- db/migrations/initial
+        2. npm run migration:run (for executing migration and create object in db)
