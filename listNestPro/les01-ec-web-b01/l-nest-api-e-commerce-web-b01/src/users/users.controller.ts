@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserSignUpDto } from './dto/user-signup.dto';
 import { UserEntity } from './entities/user.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { UserSignInDto } from './dto/user-signin.dto';
 
 @ApiTags("users")
 @Controller('users')
@@ -20,8 +21,22 @@ export class UsersController {
     };
   }
 
+  @Post('signin')
+  async signin(@Body() userSignInDto: UserSignInDto): Promise<{
+    accessToken: string,
+    user: UserEntity
+  }> {
+    const user = await this.usersService.signin(userSignInDto);
+    const accessToken = await this.usersService.accessToken(user);
+
+    return {
+      accessToken: accessToken,
+      user: user
+    }
+  }
+
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: CreateUserDto)  {
     // return this.usersService.create(createUserDto);
     return "Hello USER Controller!";
   }
