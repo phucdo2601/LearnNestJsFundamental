@@ -260,3 +260,95 @@ With that in place, we can inject the UsersRepository into the UsersService usin
             @IsNotEmpty()
             password: string;
             }
+
+------------------------------------------------------------------------------------------------------------------------
+Middleware
+Middleware is a function which is called before the route handler. Middleware functions have access to the request and response objects, and the next() middleware function in the application’s request-response cycle. The next middleware function is commonly denoted by a variable named next.
+
+Export UserService for using userRepository for getting user by id:
+    // src/users/user.moudle.ts
+    ....
+    exports: [
+        UsersService,
+    ]
+    ....
+
+Basic implement Middleware for getting current user by authId:
+    interface JwtPayload {
+        id: string;
+    }
+
+    declare global {
+        namespace Express {
+            interface Request {
+                currentUser?: UserEntity;
+            }
+        }
+    }
+
+    @Injectable()
+    export class CurrentUserMiddleWare implements NestMiddleware {
+        
+        /**
+        *
+        */
+        constructor(private readonly userService: UsersService) {
+            
+        }
+
+        async use(req: Request, res: Response, next: NextFunction) {
+        // console.log(req);
+
+        const authHeader = req.headers.authorization || req.headers.Authorization;
+
+        if (!authHeader || isArray(authHeader) || !authHeader.startsWith('Bearer ')) {
+            req.currentUser = null;
+            next();
+        } else {
+            const token = authHeader.split(' ')[1];
+            console.log(token);
+            const {
+                id
+            } = <JwtPayload>verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
+
+            const currentUser = await this.userService.findOne(+id);
+            console.log(currentUser);
+            req.currentUser = currentUser;
+            next();
+        }
+    }
+    }
+
+    Basic config middleware in app.module.ts:
+        export class AppModule implements NestModule {
+            configure(consumer: MiddlewareConsumer) {
+                consumer
+                .apply(CurrentUserMiddleWare)
+                .forRoutes({ path: '*', method: RequestMethod.ALL });
+            }
+
+        }
+
+    
+
+
+------------------------------------------------------------------------------------------------------------------------
+Custom route decorators
+Nest is built around a language feature called decorators. Decorators are a well-known concept in a lot of commonly used programming languages, but in the JavaScript world, they're still relatively new. In order to better understand how decorators work, we recommend reading this article. Here's a simple definition:
+
+In this project custom decorator for getting current user:
+    01. Create decoractor for getting currentUser from Request (Request is set on the middleware step).
+        import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+        export const CurrentUserDecorator = createParamDecorator(
+            (data: never, ctx: ExecutionContext) => {
+                const request = ctx.switchToHttp().getRequest();
+                return request.currentUser;
+            },
+        );
+
+Using CurrentUserDecorator in UserController for getting currentUser on request:
+    @Get('me')
+    getProfile(@CurrentUserDecorator() currentUser: UserEntity) {
+        return currentUser;
+    }

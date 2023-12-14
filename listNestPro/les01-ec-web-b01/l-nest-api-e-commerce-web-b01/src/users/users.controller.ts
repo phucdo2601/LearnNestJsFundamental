@@ -6,6 +6,7 @@ import { UserSignUpDto } from './dto/user-signup.dto';
 import { UserEntity } from './entities/user.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { UserSignInDto } from './dto/user-signin.dto';
+import { CurrentUserDecorator } from 'src/utility/decorators/current-user.decorator';
 
 @ApiTags("users")
 @Controller('users')
@@ -59,5 +60,10 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+
+  @Get('me')
+  getProfile(@CurrentUserDecorator() currentUser: UserEntity) {
+    return currentUser;
   }
 }

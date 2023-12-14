@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOption } from 'db/data-source';
 import { UsersModule } from './users/users.module';
+import { CurrentUserMiddleWare } from './utility/middleware/current-user.middleware';
 
 @Module({
   imports: [
@@ -14,4 +15,11 @@ import { UsersModule } from './users/users.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(CurrentUserMiddleWare)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+
+}
