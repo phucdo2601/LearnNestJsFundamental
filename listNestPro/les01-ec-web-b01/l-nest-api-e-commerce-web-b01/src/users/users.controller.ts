@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserSignUpDto } from './dto/user-signup.dto';
 import { UserEntity } from './entities/user.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserSignInDto } from './dto/user-signin.dto';
 import { CurrentUserDecorator } from 'src/utility/decorators/current-user.decorator';
 import { AuthenticationGuard } from 'src/utility/guards/authentication.guard';
@@ -49,6 +49,7 @@ export class UsersController {
   // @AuthorizeRoles(Roles.ADMIN)
   // @UseGuards(AuthenticationGuard, AuthorizeGuard)
   @UseGuards(AuthenticationGuard, AuthorizeGuardFunc([Roles.ADMIN]))
+  @ApiBearerAuth()
   @Get('all')
   async findAll() : Promise<UserEntity[]>{
     return await this.usersService.findAll();
@@ -70,6 +71,7 @@ export class UsersController {
   }
 
   @UseGuards(AuthenticationGuard)
+  @ApiBearerAuth()
   @Get('me')
   getProfile(@CurrentUserDecorator() currentUser: UserEntity) {
     return currentUser;

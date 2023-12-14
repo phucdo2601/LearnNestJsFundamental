@@ -28,6 +28,7 @@ async function bootstrap() {
       .setTitle("Learn-Ec-NestJs-RestAPI-B01")
       .setDescription("The API for Eccommerce web b01")
       .setVersion("0.1")
+      .addBearerAuth()
       .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
