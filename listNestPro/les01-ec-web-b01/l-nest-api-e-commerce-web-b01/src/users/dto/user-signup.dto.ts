@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
 import { UserSignInDto } from "./user-signin.dto";
+import { Roles } from "src/utility/common/user-roles.enum";
 
 export class UserSignUpDto extends UserSignInDto{
     @IsNotEmpty({
@@ -13,5 +14,5 @@ export class UserSignUpDto extends UserSignInDto{
     name: string;
 
     @ApiProperty()
-    roles: []
+    roles: Roles[]
 }
