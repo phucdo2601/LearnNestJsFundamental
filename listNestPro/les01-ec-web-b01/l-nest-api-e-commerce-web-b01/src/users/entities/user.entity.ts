@@ -1,5 +1,6 @@
 import { CategoryEntity } from "src/categories/entities/category.entity";
 import { ProductEntity } from "src/products/entities/product.entity";
+import { ReviewEntity } from "src/reviews/entities/review.entity";
 import { Roles } from "src/utility/common/user-roles.enum";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn } from "typeorm";
 
@@ -41,5 +42,8 @@ export class UserEntity {
     categories: CategoryEntity[];
 
     @OneToMany(() => ProductEntity, (prod) => prod.addedBy)
-    products: ProductEntity[]
+    products: ProductEntity[];
+
+    @OneToMany(() => ReviewEntity, (review) => review.user)
+    reviews: ReviewEntity[];
 }
