@@ -27,22 +27,36 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  @ApiOperation({
+    summary: "Get a list of products!",
+    description: "This is the main Description for fetching a list of products"
+  })
+  async findAll() {
+    return await this.productsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  @ApiOperation({
+    summary: "Get a product by id!",
+    description: "This is the main Description for getting a product by id"
+  })
+  async findOne(@Param('id') id: string) {
+    return await this.productsService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
+  @UseGuards(AuthenticationGuard, AuthorizeGuardFunc([Roles.ADMIN]))
+  @ApiOperation({
+    summary: "Get a product by id!",
+    description: "This is the main Description for getting a product by id"
+  })
+  @ApiBearerAuth()
+  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @CurrentUserDecorator() userEntity: UserEntity) : Promise<ProductEntity> {
+    return await this.productsService.update(+id, updateProductDto, userEntity);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.productsService.remove(+id);
   }
 }

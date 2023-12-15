@@ -8,13 +8,17 @@ import { AuthenticationGuard } from 'src/utility/guards/authentication.guard';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { AuthorizeGuardFunc } from 'src/utility/guards/authorization.guard';
 import { CategoryEntity } from './entities/category.entity';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('categories')
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
+  @ApiOperation({
+    summary: "Create category function",
+    description: "This is the main Description for creating new catagory on this system!"
+  })
   @UseGuards(AuthenticationGuard, AuthorizeGuardFunc([Roles.ADMIN]))
   @ApiBearerAuth()
   @Post()
@@ -22,16 +26,28 @@ export class CategoriesController {
     return await this.categoriesService.create(createCategoryDto, currentUser);
   }
 
+  @ApiOperation({
+    summary: "List all categories function",
+    description: "This is the main Description for fetching list categories on this system!"
+  })
   @Get()
   async findAll(): Promise<CategoryEntity[]> {
     return await this.categoriesService.findAll();
   }
 
+  @ApiOperation({
+    summary: "Get category by id function",
+    description: "This is the main Description for getting category by id on this system!"
+  })
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<CategoryEntity> {
     return await this.categoriesService.findOne(+id);
   }
 
+  @ApiOperation({
+    summary: "Update category function",
+    description: "This is the main Description for updating category on this system!"
+  })
   @UseGuards(AuthenticationGuard, AuthorizeGuardFunc([Roles.ADMIN]))
   @ApiBearerAuth()
   @Patch(':id')
@@ -39,6 +55,10 @@ export class CategoriesController {
     return await this.categoriesService.update(+id, updateCategoryDto);
   }
 
+  @ApiOperation({
+    summary: "Deleting category function",
+    description: "This is the main Description for deleting category on this system!"
+  })
   @UseGuards(AuthenticationGuard, AuthorizeGuardFunc([Roles.ADMIN]))
   @ApiBearerAuth()
   @Delete(':id')

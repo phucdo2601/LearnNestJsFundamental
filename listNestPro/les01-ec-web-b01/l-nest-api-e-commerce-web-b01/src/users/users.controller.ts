@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserSignUpDto } from './dto/user-signup.dto';
 import { UserEntity } from './entities/user.entity';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserSignInDto } from './dto/user-signin.dto';
 import { CurrentUserDecorator } from 'src/utility/decorators/current-user.decorator';
 import { AuthenticationGuard } from 'src/utility/guards/authentication.guard';
@@ -17,6 +17,10 @@ import { AuthorizeGuard, AuthorizeGuardFunc } from 'src/utility/guards/authoriza
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiOperation({
+    summary: "Login function",
+    description: "This is the main Description for logging on this system!"
+  })
   @Post('signup')
   async signup(@Body() userSignUpDto: UserSignUpDto) : Promise<{
     user: UserEntity
@@ -26,6 +30,10 @@ export class UsersController {
     };
   }
 
+  @ApiOperation({
+    summary: "Sign up function",
+    description: "This is the main Description for registering account on this system!"
+  })
   @Post('signin')
   async signin(@Body() userSignInDto: UserSignInDto): Promise<{
     accessToken: string,
@@ -48,6 +56,10 @@ export class UsersController {
 
   // @AuthorizeRoles(Roles.ADMIN)
   // @UseGuards(AuthenticationGuard, AuthorizeGuard)
+  @ApiOperation({
+    summary: "Get all list user function",
+    description: "This is the main Description for fetching list users on this system!"
+  })
   @UseGuards(AuthenticationGuard, AuthorizeGuardFunc([Roles.ADMIN]))
   @ApiBearerAuth()
   @Get('all')
@@ -55,21 +67,37 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
+  @ApiOperation({
+    summary: "Geting list user function",
+    description: "This is the main Description for getting user by id on this system!"
+  })
   @Get('single/:id')
   async findOne(@Param('id') id: string): Promise<UserEntity> {
     return await this.usersService.findOne(+id);
   }
 
+  @ApiOperation({
+    summary: "Update user function",
+    description: "This is the main Description for updating user on this system!"
+  })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
+  @ApiOperation({
+    summary: "Delete user function",
+    description: "This is the main Description for deleting user on this system!"
+  })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
   }
 
+  @ApiOperation({
+    summary: "Get current user login function",
+    description: "This is the main Description for get current user login on this system!"
+  })
   @UseGuards(AuthenticationGuard)
   @ApiBearerAuth()
   @Get('me')
