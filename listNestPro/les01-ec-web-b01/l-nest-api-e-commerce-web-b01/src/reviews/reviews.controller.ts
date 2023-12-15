@@ -1,32 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { CurrentUserDecorator } from 'src/utility/decorators/current-user.decorator';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { AuthenticationGuard } from 'src/utility/guards/authentication.guard';
 
 @ApiTags('reviews')
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
+  @UseGuards(AuthenticationGuard)
   @Post()
-  create(@Body() createReviewDto: CreateReviewDto) {
-    return this.reviewsService.create(createReviewDto);
+  async create(@Body() createReviewDto: CreateReviewDto, @CurrentUserDecorator() currentUser: UserEntity) {
+    return await this.reviewsService.create(createReviewDto, currentUser);
   }
 
   @Get()
-  findAll() {
-    return this.reviewsService.findAll();
+  async findAll() {
+    return await this.reviewsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.reviewsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.reviewsService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
-    return this.reviewsService.update(+id, updateReviewDto);
+  async update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
+    return await this.reviewsService.update(+id, updateReviewDto);
   }
 
   @Delete(':id')
