@@ -65,7 +65,7 @@ export class CreateProductDto {
     @IsNumber({
         
     }, {
-        message: 'category should be number.'
+        message: 'categoryId should be number.'
     })
-    category: number;
+    categoryId: number;
 }
