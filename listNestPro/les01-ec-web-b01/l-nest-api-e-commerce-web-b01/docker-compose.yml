@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  dev-db:
+  l-nest-api-e-commerce-web-b01-dev-db:
     image: postgres:15
     restart: always
     ports:
@@ -11,7 +11,7 @@ services:
       - POSTGRES_PASSWORD=123
       - POSTGRES_DB=learn_nest_api_pro_ec_web_b01
     volumes:
-      - dev-db:/var/lib/postgresql/data
+      - l-nest-api-e-commerce-web-b01-dev-db:/var/lib/postgresql/data
 
 volumes:
-  dev-db:
+  l-nest-api-e-commerce-web-b01-dev-db:
