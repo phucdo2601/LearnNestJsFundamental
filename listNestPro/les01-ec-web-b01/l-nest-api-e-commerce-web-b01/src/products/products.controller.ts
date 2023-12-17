@@ -1,14 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthenticationGuard } from 'src/utility/guards/authentication.guard';
 import { AuthorizeGuardFunc } from 'src/utility/guards/authorization.guard';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { CurrentUserDecorator } from 'src/utility/decorators/current-user.decorator';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { ProductEntity } from './entities/product.entity';
+import { SearchProductDto } from './dto/search-product.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -26,13 +27,14 @@ export class ProductsController {
     return await this.productsService.create(createProductDto, currentUser);
   }
 
-  @Get()
+  @Get("/list")
   @ApiOperation({
     summary: "Get a list of products!",
     description: "This is the main Description for fetching a list of products"
   })
-  async findAll() {
-    return await this.productsService.findAll();
+  @ApiQuery({ type: SearchProductDto })
+  async findAll(@Query() query: any) {
+    return await this.productsService.findAll(query);
   }
 
   @Get(':id')

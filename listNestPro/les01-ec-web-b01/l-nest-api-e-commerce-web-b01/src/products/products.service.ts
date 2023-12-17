@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { OrderStatus } from 'src/orders/enums/order-status.enum';
+import dataSource from 'db/data-source';
+import { SearchProductDto } from './dto/search-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -29,25 +31,105 @@ export class ProductsService {
     return await this.productRepository.save(product);
   }
 
-  async findAll(): Promise<ProductEntity[]> {
-    return await this.productRepository.find({
-      relations: {
-        category: true,
-        addedBy: true
-      },
-      select: {
-        category: {
-          id: true,
-          title: true,
-          description: true
-        },
-        addedBy: {
-          id: true,
-          name: true,
-          email: true
-        }
-      }
-    });
+  // async findAll(): Promise<ProductEntity[]> {
+  //   return await this.productRepository.find({
+  //     relations: {
+  //       category: true,
+  //       addedBy: true
+  //     },
+  //     select: {
+  //       category: {
+  //         id: true,
+  //         title: true,
+  //         description: true
+  //       },
+  //       addedBy: {
+  //         id: true,
+  //         name: true,
+  //         email: true
+  //       }
+  //     }
+  //   });
+  // }
+
+  async findAll(query: SearchProductDto): Promise<any> {
+    // console.losg(query);
+    
+    let filteredTotalProducts: number;
+    let limit:number;
+    let pageNum: number;
+
+    if (!query.limit) {
+      limit = 4;
+    } else {
+      limit = query.limit;
+    }
+
+    const queryBuilder = dataSource.getRepository(ProductEntity).createQueryBuilder('product')
+      .leftJoin('product.category', 'category')
+      .leftJoin('product.reviews', 'review')
+      .addSelect([
+        'COUNT(review.id) AS reviewCount',
+        'AVG(review.ratings)::numeric(10,2) AS avgRating',
+      ])
+      .groupBy('product.id,category.id');
+
+    const totalProducts = await queryBuilder.getCount();
+
+    if (query.search) {
+      const search = query.search;
+      queryBuilder.andWhere("product.title like :title", {
+        title: `%${search}%`
+      });
+    }
+
+    if (query.category) {
+      queryBuilder.andWhere("category.id = :id", {
+        id: query.category
+      })
+    }
+
+    if (query.minPrice) {
+      queryBuilder.andWhere("product.price>= :minPrice", {
+        minPrice: query.minPrice
+      })
+    }
+
+    if (query.maxPrice) {
+      queryBuilder.andWhere("product.price <= :maxPrice", {
+        maxPrice: query.maxPrice
+      })
+    }
+
+    if (query.minRating) {
+      queryBuilder.andHaving("AVG(review.ratings) >= :minRating", {
+        minRating: query.minRating
+      })
+    }
+
+    if (query.maxRating) {
+      queryBuilder.andHaving("AVG(review.ratings) <= :maxRating", {
+        maxRating: query.maxRating
+      })
+    }
+
+    queryBuilder.limit(limit);
+
+    pageNum = query.offSet;
+    let skipNum: number;
+    console.log(pageNum);
+    
+    if (Number.isInteger(pageNum)) {
+    skipNum = (pageNum - 1) * query.limit;
+    console.log(skipNum);
+      queryBuilder.skip(skipNum).take(query.limit);
+    } else {
+      queryBuilder.skip(0).take(query.limit);
+    }
+
+    const products = await queryBuilder.getRawMany();
+
+    return {products: products, count: products.length};
   }
 
   async findOne(id: number) {

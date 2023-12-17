@@ -33,5 +33,6 @@ export const dataSourceOption:DataSourceOptions={
 }
 
 const dataSource = new DataSource(dataSourceOption);
+dataSource.initialize();
 
 export default dataSource;
