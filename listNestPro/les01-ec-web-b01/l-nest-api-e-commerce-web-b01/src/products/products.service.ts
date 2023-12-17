@@ -6,6 +6,7 @@ import { ProductEntity } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { UserEntity } from 'src/users/entities/user.entity';
+import { OrderStatus } from 'src/orders/enums/order-status.enum';
 
 @Injectable()
 export class ProductsService {
@@ -103,5 +104,17 @@ export class ProductsService {
   async remove(id: number) {
     const product = await this.findOne(id);
     return await this.productRepository.remove(product);
+  }
+
+  async updateStock(id: number, stock: number, status: string) {
+    let product = await this.findOne(id);
+    if (status === OrderStatus.CANCELLED) {
+      product.stock -= stock;
+    } else {
+      product.stock += stock;
+    }
+    product = await this.productRepository.save(product);
+
+    return product;
   }
 }
