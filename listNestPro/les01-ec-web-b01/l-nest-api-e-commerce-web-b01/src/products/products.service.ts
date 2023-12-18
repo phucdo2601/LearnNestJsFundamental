@@ -72,9 +72,7 @@ export class ProductsService {
         'COUNT(review.id) AS reviewCount',
         'AVG(review.ratings)::numeric(10,2) AS avgRating',
       ])
-      .groupBy('product.id,category.id');
-
-    const totalProducts = await queryBuilder.getCount();
+      .groupBy('product.id,category.id').orderBy('product.id',"ASC");
 
     if (query.search) {
       const search = query.search;
@@ -113,23 +111,22 @@ export class ProductsService {
       })
     }
 
-    queryBuilder.limit(limit);
-
-    pageNum = query.offSet;
+    pageNum = query.pageNumber;
     let skipNum: number;
-    console.log(pageNum);
+    console.log(pageNum > 0);
     
-    if (Number.isInteger(pageNum)) {
-    skipNum = (pageNum - 1) * query.limit;
-    console.log(skipNum);
-      queryBuilder.skip(skipNum).take(query.limit);
+    if (pageNum > 0) {
+    skipNum = (pageNum - 1) * limit;
     } else {
-      queryBuilder.skip(0).take(query.limit);
+      skipNum = 0;
     }
 
+    console.log(skipNum);
+    queryBuilder.offset(skipNum).limit(limit);
     const products = await queryBuilder.getRawMany();
+    const totalRecords = await queryBuilder.getCount();
 
-    return {products: products, count: products.length};
+    return {products: products, pageRow: products.length, totalRecord:totalRecords};
   }
 
   async findOne(id: number) {
