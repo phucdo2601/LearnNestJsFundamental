@@ -18,8 +18,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({
-    summary: "Login function",
-    description: "This is the main Description for logging on this system!"
+    summary: "Register function",
+    description: "This is the main Description for signing up on this system!"
   })
   @Post('signup')
   async signup(@Body() userSignUpDto: UserSignUpDto) : Promise<{
@@ -31,8 +31,8 @@ export class UsersController {
   }
 
   @ApiOperation({
-    summary: "Sign up function",
-    description: "This is the main Description for registering account on this system!"
+    summary: "Sign in function",
+    description: "This is the main Description for logging account on this system!"
   })
   @Post('signin')
   async signin(@Body() userSignInDto: UserSignInDto): Promise<{

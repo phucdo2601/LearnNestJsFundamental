@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +9,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { OrderStatus } from 'src/orders/enums/order-status.enum';
 import dataSource from 'db/data-source';
 import { SearchProductDto } from './dto/search-product.dto';
+import { OrdersService } from 'src/orders/orders.service';
 
 @Injectable()
 export class ProductsService {
@@ -16,7 +17,11 @@ export class ProductsService {
    *
    */
   constructor(@InjectRepository(ProductEntity) private readonly productRepository: Repository<ProductEntity>,
-    private readonly categoryService: CategoriesService
+    private readonly categoryService: CategoriesService,
+    /**
+     * Trong trường hợp cả 2 resource cùng sử dụng tài nguyên qua lại lẫn nhau thì sử dụng thêm @Inject(forwardRef(() => ServiceName)) để resource có thể nhận đc sử lý của nhau
+     */
+    @Inject(forwardRef(() => OrdersService)) private readonly orderService: OrdersService,
   ) {
     
   }
@@ -52,7 +57,11 @@ export class ProductsService {
   //   });
   // }
 
-  async findAll(query: SearchProductDto): Promise<any> {
+  async findAll(query: SearchProductDto): Promise<{
+    products,
+    pageRow,
+    totalRecord
+  }> {
     // console.losg(query);
     
     let filteredTotalProducts: number;
@@ -66,7 +75,7 @@ export class ProductsService {
     }
 
     const queryBuilder = dataSource.getRepository(ProductEntity).createQueryBuilder('product')
-      .leftJoin('product.category', 'category')
+      .leftJoinAndSelect('product.category', 'category')
       .leftJoin('product.reviews', 'review')
       .addSelect([
         'COUNT(review.id) AS reviewCount',
@@ -182,6 +191,12 @@ export class ProductsService {
 
   async remove(id: number) {
     const product = await this.findOne(id);
+
+    const order = await this.orderService.findOneByProductId(product.id);
+    if (order) {
+      throw new BadRequestException(`Products is in use. `);
+    }
+
     return await this.productRepository.remove(product);
   }
 

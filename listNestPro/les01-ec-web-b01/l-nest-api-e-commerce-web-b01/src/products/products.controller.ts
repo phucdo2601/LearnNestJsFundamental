@@ -10,6 +10,8 @@ import { CurrentUserDecorator } from 'src/utility/decorators/current-user.decora
 import { UserEntity } from 'src/users/entities/user.entity';
 import { ProductEntity } from './entities/product.entity';
 import { SearchProductDto } from './dto/search-product.dto';
+import { SerializeIncludes } from 'src/utility/interceptors/serialize.interceptor';
+import { ProductsDto } from './dto/products.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -27,13 +29,14 @@ export class ProductsController {
     return await this.productsService.create(createProductDto, currentUser);
   }
 
+  @SerializeIncludes(ProductsDto)
   @Get("/list")
   @ApiOperation({
     summary: "Get a list of products!",
     description: "This is the main Description for fetching a list of products"
   })
   @ApiQuery({ type: SearchProductDto })
-  async findAll(@Query() query: any) {
+  async findAll(@Query() query: any) : Promise<ProductsDto> {
     return await this.productsService.findAll(query);
   }
 
@@ -57,6 +60,12 @@ export class ProductsController {
     return await this.productsService.update(+id, updateProductDto, userEntity);
   }
 
+  @UseGuards(AuthenticationGuard, AuthorizeGuardFunc([Roles.ADMIN]))
+  @ApiOperation({
+    summary: "Delete a product by id!",
+    description: "This is the main Description for deleting a product by id"
+  })
+  @ApiBearerAuth()
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.productsService.remove(+id);

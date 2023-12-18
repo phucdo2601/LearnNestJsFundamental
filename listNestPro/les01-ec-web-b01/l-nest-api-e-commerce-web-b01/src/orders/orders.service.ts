@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
@@ -19,7 +19,10 @@ export class OrdersService {
    */
   constructor(@InjectRepository(OrderEntity) private readonly orderRepository: Repository<OrderEntity>,
     @InjectRepository(OrdersProductsEntity) private readonly opRepository: Repository<OrdersProductsEntity>,
-    private readonly productService: ProductsService
+    /**
+     * Trong trường hợp cả 2 resource cùng sử dụng tài nguyên qua lại lẫn nhau thì sử dụng thêm @Inject(forwardRef(() => ServiceName)) để resource có thể nhận đc sử lý của nhau
+     */
+    @Inject(forwardRef(() => ProductsService)) private readonly productService: ProductsService
   ) {
     
   }
@@ -89,6 +92,19 @@ export class OrdersService {
         products: {
           product: true,
         }
+      }
+    })
+  }
+
+  async findOneByProductId(id: number) {
+    return await this.opRepository.findOne({
+      where: {
+        product: {
+          id: id
+        }
+      },
+      relations: {
+        product: true
       }
     })
   }
