@@ -1,5 +1,5 @@
 {
     "port": "3100",
-    "mongodb": "mongodb+srv://phucdn:Phucdo.2601@cluster0.htx3e.mongodb.net/LNestJsEcWebFullStackB01?retryWrites=true&w=majority",
+    "mongodbUrl": "mongodb+srv://phucdn:Phucdo.2601@cluster0.htx3e.mongodb.net/LNestJsEcWebFullStackB01?retryWrites=true&w=majority"
 
 }
