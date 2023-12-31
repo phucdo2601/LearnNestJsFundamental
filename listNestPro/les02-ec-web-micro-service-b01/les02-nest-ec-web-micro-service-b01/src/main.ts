@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import config from 'config'
 import { TransformationInterceptor } from './responseInterceptor';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,13 @@ async function bootstrap() {
    * basic using TransformationInterceptor for getting and handling data
    */
   app.useGlobalInterceptors(new TransformationInterceptor());
+
+  /**
+   * Basic config class validation
+   */
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true
+  }));
 
   await app.listen(config.get('port'), () => {
     return console.log(`Server is running on port ${config.get('port')}`);
